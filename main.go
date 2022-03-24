@@ -4,16 +4,23 @@ import (
 	"encoding/csv"
 	"flag"
 	"fmt"
+	"math/rand"
 	"os"
 	"strings"
 	"time"
 )
 
 func main() {
-	csvFileName, timeLimit := getFlagValues()
+	csvFileName, timeLimit, shouldShuffle := getFlagValues()
 	file := openFile(csvFileName)
 	records := parseCSV(file)
 	problems := parseRecords(records)
+
+	if *shouldShuffle {
+		rand.Shuffle(len(problems), func(i, j int) {
+			problems[i], problems[j] = problems[j], problems[i]
+		})
+	}
 
 	timer := time.NewTimer(time.Duration(*timeLimit) * time.Second)
 	score := 0
@@ -38,12 +45,13 @@ func main() {
 	fmt.Printf("You scored %d/%d\n", score, len(problems))
 }
 
-func getFlagValues() (*string, *int) {
+func getFlagValues() (*string, *int, *bool) {
 	csvFileName := flag.String("csv", "problems.csv", "a csv file in the format of 'question,answer'")
 	timeLimit := flag.Int("limit", 30, "the time limit for the quiz in seconds")
+	shouldShuffle := flag.Bool("shuffle", false, "whether the problems should be shuffled before presented")
 	flag.Parse()
 
-	return csvFileName, timeLimit
+	return csvFileName, timeLimit, shouldShuffle
 }
 
 func openFile(csvFileName *string) *os.File {
