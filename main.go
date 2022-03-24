@@ -63,6 +63,7 @@ func parseCSV(file *os.File) [][]string {
 		fmt.Println("Failed to read the provided CSV file")
 		os.Exit(1)
 	}
+
 	return records
 }
 
